@@ -83,35 +83,35 @@ def fast_import(
         )
     files = list(files)
     for index, (path, content) in enumerate(files):
-        child.stdin.write("""\
+        _data = """\
 blob
 mark :%(mark)d
 data %(len)d
 %(content)s
-""" % dict(
-            mark=index+1,
-            len=len(content),
-            content=content,
-            ))
-    child.stdin.write("""\
+""" % dict(mark=index + 1,
+           len=len(content),
+           content=content,
+           )
+
+        child.stdin.write(bytes(_data, 'utf-8'))
+    _data = """\
 commit refs/heads/master
 committer %(committer)s now
 data %(commit_msg_len)d
 %(commit_msg)s
-""" % dict(
-            committer=committer,
-            commit_msg_len=len(commit_msg),
-            commit_msg=commit_msg,
-            ))
+""" % dict(committer=committer,
+           commit_msg_len=len(commit_msg),
+           commit_msg=commit_msg,
+           )
+    child.stdin.write(bytes(_data, 'utf-8'))
     if parent is not None:
         assert not parent.startswith(':')
-        child.stdin.write("""\
+        _data = """\
 from %(parent)s
-""" % dict(
-                parent=parent,
-                ))
+""" % dict(parent=parent,)
+        child.stdin.write(bytes(_data, 'utf-8'))
     for index, (path, content) in enumerate(files):
-        child.stdin.write('M 100644 :%d %s\n' % (index+1, path))
+        child.stdin.write(bytes('M 100644 :%d %s\n' % (index + 1, path), 'utf-8'))
     child.stdin.close()
     returncode = child.wait()
     if returncode != 0:
@@ -187,6 +187,7 @@ def has_initial_commit(git_dir):
         )
     got = child.stdout.read()
     returncode = child.wait()
+    got = got.decode('utf-8')
     if returncode != 0:
         raise GitRevParseError('exit status %d' % returncode)
     if got == 'HEAD\n':

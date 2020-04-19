@@ -106,7 +106,7 @@ def generate_project_list(config, path):
     """
     tmp = '%s.%d.tmp' % (path, os.getpid())
 
-    f = file(tmp, 'w')
+    f = open(tmp, 'w')
     try:
         generate_project_list_fp(config=config, fp=f)
     finally:

@@ -58,7 +58,7 @@ class App(object):
 
     def read_config(self, options, cfg):
         try:
-            conffile = file(options.config)
+            conffile = open(options.config)
         except (IOError, OSError) as e:
             if e.errno == errno.ENOENT:
                 # special case this because gitosis-init wants to
